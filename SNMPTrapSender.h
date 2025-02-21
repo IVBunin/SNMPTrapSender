@@ -4,15 +4,16 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <WiFiUdp.h>
+#include <functional>
 
 class SNMPTrapSender {
 public:
-    SNMPTrapSender(const char* ip, int port);
-    
+    SNMPTrapSender(const char* ip, int port, bool useV2c = true);
     void setCommunity(const String& comm);
     void setOID(const String& oidStr);
+    void setEnterpriseOID(const String& oidStr);
     bool sendTrap(int value);
-    bool sendFloatTrap(float value);  // Для отправки float значений
+    bool sendTrapData(std::function<int()> dataFunction);
 
 private:
     WiFiUDP udp;
@@ -20,11 +21,11 @@ private:
     int targetPort;
     String community;
     String oid;
+    String enterpriseOID;
+    bool snmpV2c;
 
-    void encodeLength(uint8_t* buf, int &offset, int length);
     void encodeOID(uint8_t* buf, int &offset, const char* oid);
     void encodeInteger(uint8_t* buf, int &offset, int value);
-    void encodeFloat(uint8_t* buf, int &offset, float value);
 };
 
 #endif
